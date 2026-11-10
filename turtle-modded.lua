@@ -1,7 +1,4 @@
--- ============================================================
---  Turtle UI Library — Modern Dark Redesign
---  API compatible with original + LeftControl global hide
--- ============================================================
+﻿-- ============================================================
 
 local Players          = game:GetService("Players")
 local RunService       = game:GetService("RunService")
@@ -18,20 +15,17 @@ local allWindows  = {}
 local dropdowns   = {}
 local colorPickers = {}
 
--- ============================================================
---  THEME
--- ============================================================
 local Theme = {
-    Background   = Color3.fromRGB(18, 18, 22),
-    Panel        = Color3.fromRGB(24, 24, 29),
-    PanelLight   = Color3.fromRGB(30, 30, 36),
-    Element      = Color3.fromRGB(34, 34, 41),
-    ElementHover = Color3.fromRGB(46, 46, 55),
-    Border       = Color3.fromRGB(48, 48, 58),
-    Text         = Color3.fromRGB(237, 237, 242),
-    TextDim      = Color3.fromRGB(150, 150, 162),
-    Accent       = Color3.fromRGB(130, 100, 255),
-    AccentDark   = Color3.fromRGB(95, 70, 200),
+    Background   = Color3.fromRGB(17, 19, 24),
+    Panel        = Color3.fromRGB(24, 27, 33),
+    PanelLight   = Color3.fromRGB(30, 34, 42),
+    Element      = Color3.fromRGB(34, 38, 46),
+    ElementHover = Color3.fromRGB(44, 49, 58),
+    Border       = Color3.fromRGB(48, 52, 62),
+    Text         = Color3.fromRGB(228, 232, 240),
+    TextDim      = Color3.fromRGB(130, 136, 148),
+    Accent       = Color3.fromRGB(96, 130, 220),
+    AccentDark   = Color3.fromRGB(80, 110, 200),
     Success      = Color3.fromRGB(74, 222, 128),
     Danger       = Color3.fromRGB(239, 68, 68),
     Font         = Enum.Font.Gotham,
@@ -61,9 +55,6 @@ local function addStroke(parent, color, thickness)
     return s
 end
 
--- ============================================================
---  DRAG SYSTEM
--- ============================================================
 local function Dragify(frame, dragArea)
     dragArea = dragArea or frame
     local dragging, dragInput, dragStart, startPos
@@ -100,9 +91,6 @@ local function Dragify(frame, dragArea)
     end)
 end
 
--- ============================================================
---  GUI PROTECTION
--- ============================================================
 if game.CoreGui:FindFirstChild("TurtleUiLib") then
     game.CoreGui:FindFirstChild("TurtleUiLib"):Destroy()
     destroyed = true
@@ -127,9 +115,6 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 protect_gui(ScreenGui)
 
--- ============================================================
---  GLOBAL KEYBIND (LeftControl by default) — HIDE / SHOW ALL
--- ============================================================
 local hideKey = Enum.KeyCode.LeftControl
 local keybindConn
 
@@ -158,17 +143,11 @@ function library:Destroy()
     if keybindConn then keybindConn:Disconnect() end
 end
 
--- ============================================================
---  WINDOW BUILDER
--- ============================================================
 function library:Window(name)
     windowCount = windowCount + 1
     local winCount = windowCount
     local xPos = 20 + (winCount - 1) * 240
 
-    ------------------------------------------------------------
-    -- Window frame
-    ------------------------------------------------------------
     local window = Instance.new("Frame")
     window.Name = "Window_" .. winCount
     window.Parent = ScreenGui
@@ -180,13 +159,10 @@ function library:Window(name)
     window.ZIndex = winCount * 10
     window.Active = true
 
-    addCorner(window, 10)
+    addCorner(window, 12)
     addStroke(window, Theme.Border, 1)
     table.insert(allWindows, window)
 
-    ------------------------------------------------------------
-    -- Header
-    ------------------------------------------------------------
     local header = Instance.new("Frame")
     header.Name = "Header"
     header.Parent = window
@@ -214,7 +190,6 @@ function library:Window(name)
     headerLine.Size = UDim2.new(1, -20, 0, 1)
     headerLine.ZIndex = window.ZIndex + 1
 
-    -- Minimize button
     local minBtn = Instance.new("TextButton")
     minBtn.Parent = header
     minBtn.AnchorPoint = Vector2.new(1, 0.5)
@@ -228,15 +203,12 @@ function library:Window(name)
     minBtn.TextSize = 16
     minBtn.AutoButtonColor = false
     minBtn.ZIndex = header.ZIndex + 1
-    addCorner(minBtn, 5)
+    addCorner(minBtn, 6)
     minBtn.MouseEnter:Connect(function() tween(minBtn, {BackgroundColor3 = Theme.ElementHover}, 0.12) end)
     minBtn.MouseLeave:Connect(function() tween(minBtn, {BackgroundColor3 = Theme.Element}, 0.12) end)
 
-    Dragify(window, header)
+    Dragify(window)
 
-    ------------------------------------------------------------
-    -- Body
-    ------------------------------------------------------------
     local body = Instance.new("Frame")
     body.Name = "Body"
     body.Parent = window
@@ -278,13 +250,9 @@ function library:Window(name)
         updateSize()
     end)
 
-    ------------------------------------------------------------
-    -- Component functions
-    ------------------------------------------------------------
     local order = 0
     local functions = {}
 
-    -- BUTTON -------------------------------------------------
     function functions:Button(text, callback)
         order = order + 1
         callback = callback or function() end
@@ -301,14 +269,13 @@ function library:Window(name)
         btn.TextSize = 13
         btn.AutoButtonColor = false
         btn.ZIndex = window.ZIndex + 2
-        addCorner(btn, 6)
+        addCorner(btn, 8)
 
         btn.MouseEnter:Connect(function() tween(btn, {BackgroundColor3 = Theme.ElementHover}, 0.12) end)
         btn.MouseLeave:Connect(function() tween(btn, {BackgroundColor3 = Theme.Element}, 0.12) end)
         btn.MouseButton1Click:Connect(function() task.spawn(callback) end)
     end
 
-    -- LABEL --------------------------------------------------
     function functions:Label(text, color)
         order = order + 1
 
@@ -336,7 +303,6 @@ function library:Window(name)
         return lbl
     end
 
-    -- TOGGLE -------------------------------------------------
     function functions:Toggle(text, on, callback)
         order = order + 1
         callback = callback or function() end
@@ -389,7 +355,6 @@ function library:Window(name)
         end)
     end
 
-    -- BOX ----------------------------------------------------
     function functions:Box(text, callback)
         order = order + 1
         callback = callback or function() end
@@ -427,7 +392,7 @@ function library:Window(name)
         txt.ClearTextOnFocus = false
         txt.TextXAlignment = Enum.TextXAlignment.Left
         txt.ZIndex = row.ZIndex
-        addCorner(txt, 6)
+        addCorner(txt, 8)
         local txtStroke = addStroke(txt, Theme.Border, 1)
 
         local txtPad = Instance.new("UIPadding")
@@ -444,7 +409,6 @@ function library:Window(name)
         end)
     end
 
-    -- SLIDER -------------------------------------------------
     function functions:Slider(text, min, max, default, callback)
         order = order + 1
         min = min or 0
@@ -550,7 +514,6 @@ function library:Window(name)
         return api
     end
 
-    -- DROPDOWN -----------------------------------------------
     function functions:Dropdown(text, buttons, callback, selective)
         order = order + 1
         buttons = buttons or {}
@@ -569,7 +532,7 @@ function library:Window(name)
         ddBtn.TextXAlignment = Enum.TextXAlignment.Left
         ddBtn.AutoButtonColor = false
         ddBtn.ZIndex = window.ZIndex + 2
-        addCorner(ddBtn, 6)
+        addCorner(ddBtn, 8)
 
         local arrow = Instance.new("TextLabel")
         arrow.Parent = ddBtn
@@ -596,7 +559,7 @@ function library:Window(name)
         menu.AutomaticCanvasSize = Enum.AutomaticSize.Y
         menu.ClipsDescendants = true
         menu.ZIndex = window.ZIndex + 100
-        addCorner(menu, 6)
+        addCorner(menu, 8)
         addStroke(menu, Theme.Border, 1)
 
         local layout = Instance.new("UIListLayout")
@@ -650,7 +613,7 @@ function library:Window(name)
             item.TextXAlignment = Enum.TextXAlignment.Left
             item.AutoButtonColor = false
             item.ZIndex = menu.ZIndex + 1
-            addCorner(item, 4)
+            addCorner(item, 6)
 
             item.MouseEnter:Connect(function() tween(item, {BackgroundColor3 = Theme.ElementHover}, 0.12) end)
             item.MouseLeave:Connect(function() tween(item, {BackgroundColor3 = Theme.Element}, 0.12) end)
@@ -675,7 +638,6 @@ function library:Window(name)
         return api
     end
 
-    -- COLOR PICKER -------------------------------------------
     function functions:ColorPicker(name, default, callback)
         order = order + 1
         callback = callback or function() end
@@ -708,10 +670,9 @@ function library:Window(name)
         swatch.Text = ""
         swatch.AutoButtonColor = false
         swatch.ZIndex = row.ZIndex
-        addCorner(swatch, 6)
+        addCorner(swatch, 8)
         addStroke(swatch, Theme.Border, 1)
 
-        -- Popup
         local popup = Instance.new("Frame")
         popup.Parent = ScreenGui
         popup.Size = UDim2.fromOffset(180, 220)
@@ -719,7 +680,7 @@ function library:Window(name)
         popup.BorderSizePixel = 0
         popup.Visible = false
         popup.ZIndex = 500
-        addCorner(popup, 10)
+        addCorner(popup, 12)
         addStroke(popup, Theme.Border, 1)
 
         local plbl = Instance.new("TextLabel")
@@ -746,14 +707,13 @@ function library:Window(name)
         closeBtn.TextSize = 12
         addCorner(closeBtn, 4)
 
-        -- HSV canvas
         local canvas = Instance.new("Frame")
         canvas.Parent = popup
         canvas.Position = UDim2.new(0, 12, 0, 32)
         canvas.Size = UDim2.new(1, -24, 0, 108)
         canvas.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         canvas.BorderSizePixel = 0
-        addCorner(canvas, 6)
+        addCorner(canvas, 8)
 
         local whiteGrad = Instance.new("UIGradient")
         whiteGrad.Color = ColorSequence.new(Color3.fromRGB(255,255,255), Color3.fromRGB(255,255,255))
@@ -768,7 +728,7 @@ function library:Window(name)
         blackOv.Size = UDim2.new(1, 0, 1, 0)
         blackOv.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         blackOv.BorderSizePixel = 0
-        addCorner(blackOv, 6)
+        addCorner(blackOv, 8)
 
         local blackGrad = Instance.new("UIGradient")
         blackGrad.Transparency = NumberSequence.new({
@@ -787,7 +747,6 @@ function library:Window(name)
         addCorner(cursor, 99)
         addStroke(cursor, Color3.fromRGB(255,255,255), 2)
 
-        -- Hue bar
         local hueBar = Instance.new("Frame")
         hueBar.Parent = popup
         hueBar.Position = UDim2.new(0, 12, 0, 148)
@@ -817,7 +776,6 @@ function library:Window(name)
         hueCursor.BorderSizePixel = 0
         addCorner(hueCursor, 99)
 
-        -- Rainbow toggle
         local rainbowRow = Instance.new("Frame")
         rainbowRow.Parent = popup
         rainbowRow.Position = UDim2.new(0, 12, 0, 172)
@@ -853,7 +811,6 @@ function library:Window(name)
         rbThumb.BorderSizePixel = 0
         addCorner(rbThumb, 99)
 
-        -- State
         local hue, sat, val = 0, 1, 1
         local rainbowActive = false
         local rainbowConn
@@ -880,7 +837,6 @@ function library:Window(name)
             end
         end
 
-        -- Dragging on canvas
         local function processCanvas(input)
             local pos, size = canvas.AbsolutePosition, canvas.AbsoluteSize
             sat = math.clamp((input.Position.X - pos.X) / size.X, 0, 1)
@@ -909,7 +865,6 @@ function library:Window(name)
             end
         end)
 
-        -- Dragging on hue bar
         local function processHue(input)
             local pos, size = hueBar.AbsolutePosition, hueBar.AbsoluteSize
             hue = math.clamp((input.Position.X - pos.X) / size.X, 0, 1)
@@ -941,7 +896,6 @@ function library:Window(name)
             setRainbow(not rainbowActive)
         end)
 
-        -- Default
         if type(default) == "boolean" and default then
             setRainbow(true)
         elseif typeof(default) == "Color3" then
@@ -952,7 +906,6 @@ function library:Window(name)
             swatch.BackgroundColor3 = default
         end
 
-        -- Popup positioning
         local function positionPopup()
             local abs, size = swatch.AbsolutePosition, swatch.AbsoluteSize
             local cam = workspace.CurrentCamera
@@ -993,5 +946,7 @@ function library:Window(name)
 
     return functions
 end
+
+library:Keybind("LeftControl")
 
 return library
